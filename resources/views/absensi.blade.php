@@ -24,7 +24,7 @@
             <div class="col-md-4">
                 <button class="btn btn-danger btn-lg w-100" onclick="openCamera('PULANG')" @if ($disablePulangButton) disabled @endif>PULANG</button>
             </div>
-        </div>        
+        </div>
         <div class="row mt-4">
             <div class="col-md-12 table-responsive">
                 <hr>
@@ -40,20 +40,20 @@
                     </thead>
                     <tbody>
                         @if (isset($listData) && !$listData->isEmpty())
-                            @foreach ($listData as $index => $item)
-                                <tr>
-                                    <td>{{ $item->nama_karyawan }}</td>
-                                    <td>{{ $item->status_absen }}</td>
-                                    <td>{{ $item->addtime }}</td>
-                                    <td>
-                                        @if (!empty($item->foto_kehadiran))
-                                            <img src="{{ url('/webhrm/public/uploads').'/'. $item->foto_kehadiran }}" alt="Foto Kehadiran" class="img-fluid" style="max-width: 100px;">
-                                        @else
-                                            <span class="text-muted">Tidak ada foto</span>
-                                        @endif
-                                    </td>
-                                </tr>
-                            @endforeach
+                        @foreach ($listData as $index => $item)
+                        <tr>
+                            <td>{{ $item->nama_karyawan }}</td>
+                            <td>{{ $item->status_absen }}</td>
+                            <td>{{ $item->addtime }}</td>
+                            <td>
+                                @if (!empty($item->foto_kehadiran))
+                                <img src="{{ url('/webhrm/public/uploads').'/'. $item->foto_kehadiran }}" alt="Foto Kehadiran" class="img-fluid" style="max-width: 100px;">
+                                @else
+                                <span class="text-muted">Tidak ada foto</span>
+                                @endif
+                            </td>
+                        </tr>
+                        @endforeach
                         @else
                         @endif
                     </tbody>
@@ -81,16 +81,20 @@
 </div>
 
 @if (session('error'))
-        <script>
-            alert('{{ session('error') }}');
-        </script>
+<script>
+    alert('{{ session('error ') }}');
+</script>
 @endif
 
 <script>
     // Update waktu berjalan
     function updateCurrentTime() {
         const now = new Date();
-        const formattedTime = now.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+        const formattedTime = now.toLocaleTimeString('id-ID', {
+            hour: '2-digit',
+            minute: '2-digit',
+            second: '2-digit'
+        });
         document.getElementById('current-time').textContent = formattedTime;
     }
     setInterval(updateCurrentTime, 1000);
@@ -105,7 +109,9 @@
         document.getElementById('cameraModal').dataset.status = status;
 
         const video = document.getElementById('camera-stream');
-        navigator.mediaDevices.getUserMedia({ video: true })
+        navigator.mediaDevices.getUserMedia({
+                video: true
+            })
             .then(stream => {
                 cameraStream = stream;
                 video.srcObject = stream;
@@ -155,12 +161,12 @@
 
         // Kirim request menggunakan Fetch API
         fetch('/upload-foto', {
-            method: 'POST',
-            headers: {
-                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
-            },
-            body: formData
-        })
+                method: 'POST',
+                headers: {
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+                },
+                body: formData
+            })
             .then(response => response.json())
             .then(data => {
                 if (data.success) {
@@ -186,7 +192,9 @@
             arrayBuffer[i] = byteString.charCodeAt(i);
         }
 
-        return new Blob([arrayBuffer], { type: mime });
+        return new Blob([arrayBuffer], {
+            type: mime
+        });
     }
 </script>
 

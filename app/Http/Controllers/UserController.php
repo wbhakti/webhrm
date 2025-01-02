@@ -27,7 +27,7 @@ class UserController extends Controller
         try {
 
             $passHash = base64_encode(hash_hmac('sha256', $request->input('username') . ':' . $request->input('password'), '#@R4dJaAN91n?#@', true));
-            
+
             // Cek apakah username dan password cocok
             $user = DB::table('karyawan')
                 ->where('email', $request->input('username'))
@@ -51,20 +51,21 @@ class UserController extends Controller
 
     public function ListEmploye(Request $request)
     {
-        try{
+        try {
 
             $query = DB::table('karyawan')
-            ->join('bagian', 'karyawan.BAGIAN', '=', 'bagian.ID_BAGIAN') // Melakukan join
-            ->join('jabatan', 'karyawan.JABATAN', '=', 'jabatan.ID_JABATAN')
-            ->leftJoin('outlet', 'karyawan.OUTLET', '=', 'outlet.ID_OUTLET')
-            ->select(
-                'karyawan.*', 
-                'bagian.BAGIAN as nama_bagian', 
-                'jabatan.NAMA_JABATAN as nama_jabatan',
-                'outlet.NAMA as nama_toko'
-            );
+                ->join('bagian', 'karyawan.BAGIAN', '=', 'bagian.ID_BAGIAN') // Melakukan join
+                ->join('jabatan', 'karyawan.JABATAN', '=', 'jabatan.ID_JABATAN')
+                ->leftJoin('outlet', 'karyawan.OUTLET', '=', 'outlet.ID_OUTLET')
+                ->select(
+                    'karyawan.*',
+                    'bagian.BAGIAN as nama_bagian',
+                    'jabatan.NAMA_JABATAN as nama_jabatan',
+                    'outlet.NAMA as nama_toko'
+                );
+            $query->where('karyawan.is_delete', false);
 
-            if(session('role') == "2" || session('role') == "3"){
+            if (session('role') == "2" || session('role') == "3") {
                 //admin data dan admin hrd hanya bisa ambil data role user
                 $query->where('karyawan.ROLE', '4');
             }
@@ -73,13 +74,11 @@ class UserController extends Controller
             $filter = $request->input('filterBagian');
             if (!empty($filter)) {
 
-                if($filter == "headoffice"){
+                if ($filter == "headoffice") {
                     $query->where('bagian.ID_BAGIAN', '1');
-                }
-                else if($filter == "gudang"){
+                } else if ($filter == "gudang") {
                     $query->where('bagian.ID_BAGIAN', '2');
-                }
-                else if($filter == "outlet"){
+                } else if ($filter == "outlet") {
                     $query->where('bagian.ID_BAGIAN', '3');
 
                     //filter outlet
@@ -108,7 +107,7 @@ class UserController extends Controller
                 'listData' => $listKaryawan,
                 'listOutlet' => $listOutlet
             ]);
-        }catch(\Exception $e){
+        } catch (\Exception $e) {
             Log::error('Error occurred report : ' . $e->getMessage());
             return view('listkaryawan', ['error' => 'Terjadi kesalahan : ' . $e->getMessage()]);
         }
@@ -116,27 +115,27 @@ class UserController extends Controller
 
     public function AddEmploye()
     {
-        try{
+        try {
 
             $listOutlet = DB::table('outlet')->get();
 
             if ($listOutlet->isEmpty()) {
                 return redirect('/dashboard')->with('error', 'Tidak ada data outlet yang ditemukan.');
             } else {
-                
-                if(session('role') == "3"){
+
+                if (session('role') == "3") {
                     //admin HRD hanya bisa add role user saja
                     $listRole = DB::table('role')->where('ID_ROLE', '4')->get();
-                }else{
+                } else {
                     $listRole = DB::table('role')->get();
                 }
-                
+
                 return view('addkaryawan', [
                     'data' => $listOutlet,
                     'dataRole' => $listRole
                 ]);
             }
-        }catch(\Exception $e){
+        } catch (\Exception $e) {
             Log::error('Error occurred report : ' . $e->getMessage());
             return redirect('/dashboard')->with('error', 'Terjadi kesalahan ambil data outlet');
         }
@@ -150,17 +149,17 @@ class UserController extends Controller
             $passHash = base64_encode(hash_hmac('sha256', $request->input('email') . ':' . $pass, '#@R4dJaAN91n?#@', true));
             $nik = $this->generateNik($request->input('jabatan'));
 
-            if($request->input('status_karyawan') == "TETAP"){
+            if ($request->input('status_karyawan') == "TETAP") {
                 $masaKontrak = "TETAP";
                 $akhirKontrak = null;
-            }else{
-                $masaKontrak = $request->input('kontrak'). " Bulan";
+            } else {
+                $masaKontrak = $request->input('kontrak') . " Bulan";
                 $akhirKontrak = Carbon::parse($request->input('tanggal_bergabung'))->addMonth($request->input('kontrak'))->toDateString();
             }
 
-            if($request->input('bagian') == "3"){
+            if ($request->input('bagian') == "3") {
                 $dataOutlet = $request->input('outlet');
-            }else{
+            } else {
                 $dataOutlet = null;
             }
 
@@ -185,12 +184,11 @@ class UserController extends Controller
                 'PASSWORD' => $passHash,
                 'ROLE' => $request->input('role')
             ]);
-            
+
             //auto kirim email konfirmasi, dan password
             $this->sendEmailRegistration($request, $pass, $nik);
 
             return redirect('/dashboard/list-karyawan')->with('success', 'Berhasil simpan data karyawan');
-            
         } catch (\Exception $e) {
             //dd($e);
             Log::error('Error occurred report : ' . $e->getMessage());
@@ -202,17 +200,17 @@ class UserController extends Controller
     {
         try {
 
-            if($request->input('status_karyawan') == "TETAP"){
+            if ($request->input('status_karyawan') == "TETAP") {
                 $masaKontrak = "TETAP";
                 $akhirKontrak = null;
-            }else{
-                $masaKontrak = $request->input('masa_kontrak'). " Bulan";
+            } else {
+                $masaKontrak = $request->input('masa_kontrak') . " Bulan";
                 $akhirKontrak = $request->input('akhir_kontrak');
             }
 
-            if($request->input('bagian') == "3"){
+            if ($request->input('bagian') == "3") {
                 $dataOutlet = $request->input('outlet');
-            }else{
+            } else {
                 $dataOutlet = null;
             }
 
@@ -238,7 +236,6 @@ class UserController extends Controller
 
             // Update berhasil
             return redirect('/dashboard/list-karyawan')->with('success', 'Berhasil update data karyawan');
-            
         } catch (\Exception $e) {
             Log::error('Error occurred during update: ' . $e->getMessage());
             return back()->with('error', 'Terjadi kesalahan saat update data karyawan');
@@ -251,11 +248,12 @@ class UserController extends Controller
             //dd($request);
 
             // delete data karyawan
-            DB::table('karyawan')->where('id_karyawan', $request->input('idkaryawan'))->delete();
+            DB::table('karyawan')->where('id_karyawan', $request->input('idkaryawan'))->update([
+                'is_delete' => true
+            ]);
 
             // delete berhasil
             return redirect('/dashboard/list-karyawan')->with('success', 'Berhasil delete data karyawan');
-            
         } catch (\Exception $e) {
             Log::error('Error occurred during update: ' . $e->getMessage());
             return back()->with('error', 'Terjadi kesalahan saat delete data karyawan');
@@ -275,15 +273,14 @@ class UserController extends Controller
 
             //update password
             DB::table('karyawan')
-            ->where('id_karyawan', session('id'))
-            ->update([
-                'password' => $passHash,
-            ]);
+                ->where('id_karyawan', session('id'))
+                ->update([
+                    'password' => $passHash,
+                ]);
 
             $request->session()->flush();
 
             return redirect('/login')->with('success', 'Berhasil ubah password, silahkan login ulang!');
-            
         } catch (\Exception $e) {
             Log::error('Error occurred report : ' . $e->getMessage());
             return back()->with('error', 'Terjadi kesalahan server');
@@ -304,28 +301,27 @@ class UserController extends Controller
 
             //cek user
             $user = DB::table('karyawan')
-            ->where('email', $request->input('email'))
-            ->where('nik', $request->input('nik'))
-            ->first();
+                ->where('email', $request->input('email'))
+                ->where('nik', $request->input('nik'))
+                ->first();
 
-            if(empty($user)){
+            if (empty($user)) {
                 return back()->with('error', 'Email atau NIK tidak terdaftar!');
-            }else{
+            } else {
 
                 //update password
                 DB::table('karyawan')
-                ->where('email', $request->input('email'))
-                ->where('nik', $request->input('nik'))
-                ->update([
-                    'password' => $passHash,
-                ]);
+                    ->where('email', $request->input('email'))
+                    ->where('nik', $request->input('nik'))
+                    ->update([
+                        'password' => $passHash,
+                    ]);
 
                 //auto kirim email konfirmasi, dan password
                 $this->SendEmailResetPassword($user->NAMA, $request->input('email'), $request->input('nik'), $pass);
 
                 return redirect('/login')->with('success', 'Reset password berhasil, silahkan cek Email untuk info password terbaru.');
             }
-            
         } catch (\Exception $e) {
             Log::error('Error occurred report : ' . $e->getMessage());
             return back()->with('error', 'Terjadi kesalahan server');
@@ -334,7 +330,7 @@ class UserController extends Controller
 
     public function SendEmailRegistration(Request $request, $password, $nik)
     {
-        try{
+        try {
 
             //kirim Email
             $data = [
@@ -343,7 +339,7 @@ class UserController extends Controller
                 'nik' => $nik,
                 'password' => $password,
             ];
-            
+
             // Konten HTML untuk email
             $bodyEmail = '
                 <html>
@@ -385,15 +381,14 @@ class UserController extends Controller
                 $message->to($data['email'], $data['nama_lengkap']);
                 $message->subject('Informasi Login Karyawan');
             });
-
-        }catch(\Exception $e){
+        } catch (\Exception $e) {
             Log::error('Error occurred : ' . $e->getMessage());
         }
     }
 
     public function SendEmailResetPassword($nama, $email, $nik, $password)
     {
-        try{
+        try {
 
             //kirim Email
             $data = [
@@ -402,7 +397,7 @@ class UserController extends Controller
                 'nik' => $nik,
                 'password' => $password,
             ];
-            
+
             // Konten HTML untuk email
             $bodyEmail = '
                 <html>
@@ -444,8 +439,7 @@ class UserController extends Controller
                 $message->to($data['email'], $data['nama_lengkap']);
                 $message->subject('Informasi Login Karyawan');
             });
-
-        }catch(\Exception $e){
+        } catch (\Exception $e) {
             Log::error('Error occurred : ' . $e->getMessage());
         }
     }
@@ -454,7 +448,7 @@ class UserController extends Controller
     {
         // Karakter yang akan digunakan dalam password
         $characters = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ!@#$&_';
-        
+
         // Mengacak karakter dan menghasilkan password acak
         $randomPassword = '';
         for ($i = 0; $i < 6; $i++) {
@@ -492,18 +486,15 @@ class UserController extends Controller
 
     public function getJabatan($id)
     {
-        try{
+        try {
 
             $listJabatan = DB::table('jabatan')
-            ->where('id_bagian', $id)
-            ->get();
-    
+                ->where('id_bagian', $id)
+                ->get();
+
             return response()->json($listJabatan);
-            
-        }catch(\Exception $e){
+        } catch (\Exception $e) {
             return response()->json(['message' => 'Terjadi kesalahan.'], 400);
         }
     }
-
-    
 }

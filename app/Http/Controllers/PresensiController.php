@@ -19,11 +19,22 @@ class PresensiController extends Controller
                 ->orderBy('addtime', 'asc')
                 ->get();
 
-            $lastRow = $listAbsen->last();
+
 
             // Default tombol enable
             $disableDatangButton = false;
             $disablePulangButton = false;
+
+            // $lastRow = $listAbsen->last();
+            // if ($lastRow) {
+            //     if ($lastRow->status_absen === 'DATANG') {
+            //         $disableDatangButton = true;
+            //         $disablePulangButton = false;
+            //     } elseif ($lastRow->status_absen === 'PULANG') {
+            //         $disableDatangButton = false;
+            //         $disablePulangButton = true;
+            //     }
+            // }
 
             return view('absensi', [
                 'listData' => $listAbsen,
@@ -38,7 +49,7 @@ class PresensiController extends Controller
 
     public function uploadfoto(Request $request)
     {
-        try{
+        try {
 
             // Validasi file
             $request->validate([
@@ -64,7 +75,7 @@ class PresensiController extends Controller
                 $source = imagecreatefrompng($image->getRealPath());
                 imagealphablending($tmp, false);
                 imagesavealpha($tmp, true);
-            }else{
+            } else {
                 return response()->json([
                     'success' => false,
                 ]);
@@ -95,8 +106,7 @@ class PresensiController extends Controller
             return response()->json([
                 'success' => true,
             ]);
-
-        }catch (\Exception $e) {
+        } catch (\Exception $e) {
             Log::error('uploadfoto Error occurred report : ' . $e->getMessage());
             return response()->json([
                 'success' => false,
@@ -106,17 +116,17 @@ class PresensiController extends Controller
 
     public function ReportAbsensi()
     {
-        try{
+        try {
 
             //cek user
             $user = DB::table('karyawan')
-            ->where('id_karyawan', session('id'))
-            ->first();
+                ->where('id_karyawan', session('id'))
+                ->first();
 
-            if($user->JABATAN == '10'){
+            if ($user->JABATAN == '10') {
                 return view('reportabsensi');
-            }else{
-                if($user->ROLE == '3'){
+            } else {
+                if ($user->ROLE == '3') {
                     //khusus HRD ada filter outlet
                     $listOutlet = DB::table('outlet')->get();
                     return view('reportabsensi', [
@@ -125,7 +135,7 @@ class PresensiController extends Controller
                 }
                 return back()->with('error', 'Anda tidak memiliki akses ke halaman ini.');
             }
-        }catch(\Exception $e){
+        } catch (\Exception $e) {
             Log::error('ReportAbsensi Error occurred report : ' . $e->getMessage());
             return view('reportabsensi', ['error' => 'Terjadi kesalahan load data']);
         }
@@ -144,15 +154,14 @@ class PresensiController extends Controller
             $startDate = $request->start_date;
             $endDate = $request->end_date;
 
-            if($request->action == "report")
-            {
+            if ($request->action == "report") {
                 $listAbsen = DB::table('presensi')
-                ->where('outlet', $outlet)
-                ->where('addtime', '>=', $startDate . ' 00:00:00')
-                ->where('addtime', '<=', $endDate . ' 23:59:59')
-                ->orderBy('nama_karyawan')
-                ->orderBy('addtime')
-                ->get();
+                    ->where('outlet', $outlet)
+                    ->where('addtime', '>=', $startDate . ' 00:00:00')
+                    ->where('addtime', '<=', $endDate . ' 23:59:59')
+                    ->orderBy('nama_karyawan')
+                    ->orderBy('addtime')
+                    ->get();
 
                 $processedData = [];
                 foreach ($listAbsen as $absen) {
@@ -188,7 +197,7 @@ class PresensiController extends Controller
                 $attendances = array_values($processedData);
 
                 // Cek user
-                $listOutlet = collect(); 
+                $listOutlet = collect();
                 if (session('role') == '3') {
                     $listOutlet = DB::table('outlet')->get();
                 }
@@ -201,17 +210,15 @@ class PresensiController extends Controller
                     'end_date' => $endDate,
                     'outlets' => $listOutlet
                 ]);
-            }
-            else
-            {
+            } else {
                 //download
                 $listAbsen = DB::table('presensi')
-                ->where('outlet', $outlet)
-                ->where('addtime', '>=', $startDate . ' 00:00:00')
-                ->where('addtime', '<=', $endDate . ' 23:59:59')
-                ->orderBy('nama_karyawan')
-                ->orderBy('addtime')
-                ->get();
+                    ->where('outlet', $outlet)
+                    ->where('addtime', '>=', $startDate . ' 00:00:00')
+                    ->where('addtime', '<=', $endDate . ' 23:59:59')
+                    ->orderBy('nama_karyawan')
+                    ->orderBy('addtime')
+                    ->get();
 
                 if ($listAbsen->isEmpty()) {
                     return back()->with('error', 'Tidak ada data untuk tanggal yang dipilih.');
@@ -259,8 +266,8 @@ class PresensiController extends Controller
 
                 //ambil outlet
                 $namaOutlet = DB::table('outlet')
-                ->where('id_outlet', $outlet)
-                ->first();
+                    ->where('id_outlet', $outlet)
+                    ->first();
 
                 $sheet->setCellValue('A2', $namaOutlet->NAMA);
                 $sheet->mergeCells('A2:G2');
@@ -295,7 +302,7 @@ class PresensiController extends Controller
                 $row = $startRow + 1;
                 $no = 1;
                 foreach ($processedData as $data) {
-                    foreach ($data['absen'] as $absen){
+                    foreach ($data['absen'] as $absen) {
                         $sheet->setCellValue("A$row", $no++);
                         $sheet->setCellValue("B$row", $data['name']);
                         $sheet->setCellValue("C$row", $absen['datang'] ? date('d-m-Y', strtotime($absen['datang'])) : '-');
@@ -343,11 +350,9 @@ class PresensiController extends Controller
 
                 return response()->download($filePath)->deleteFileAfterSend(true);
             }
-
         } catch (\Exception $e) {
             Log::error('PostReportAbsen Error occurred report: ' . $e->getMessage());
             return back()->with('error', 'Terjadi kesalahan ambil data.');
         }
     }
-       
 }
