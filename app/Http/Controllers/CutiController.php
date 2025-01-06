@@ -31,9 +31,11 @@ class CutiController extends Controller
             // Buat query dasar
             $query = DB::table('history_cuti')
             ->join('karyawan', 'karyawan.id_karyawan', '=', 'history_cuti.id_karyawan')
+            ->leftJoin('outlet', 'karyawan.outlet', '=', 'outlet.id_outlet')
             ->join('status_cuti', 'status_cuti.id_status_cuti', '=', 'history_cuti.status')
             ->select(
                 'history_cuti.*', 
+                'outlet.nama as nama_outlet',
                 'karyawan.NAMA as nama_karyawan',
                 'status_cuti.status as status_cuti'
             );

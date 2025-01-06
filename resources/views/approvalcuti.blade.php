@@ -39,6 +39,7 @@
                         <th>Mulai Cuti</th>
                         <th>Selesai Cuti</th>
                         <th>Alasan Cuti</th>
+                        <th>Outlet</th>
                         <th>Status Cuti</th>
                         <th>Alasan Ditolak</th>
                         <th>Action</th>
@@ -54,6 +55,7 @@
                         <td>{{ \Carbon\Carbon::parse($item->TANGGAL_AWAL)->format('d-m-Y') }}</td>
                         <td>{{ \Carbon\Carbon::parse($item->TANGGAL_AKHIR)->format('d-m-Y') }}</td>
                         <td>{{ $item->alasan_cuti }}</td>
+                        <td>{{ $item->nama_outlet }}</td>
                         <td>{{ $item->status_cuti }}</td>
                         <td>
                             @if($item->status_cuti == 'DITOLAK')

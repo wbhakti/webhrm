@@ -25,17 +25,6 @@ class PresensiController extends Controller
             $disableDatangButton = false;
             $disablePulangButton = false;
 
-            // $lastRow = $listAbsen->last();
-            // if ($lastRow) {
-            //     if ($lastRow->status_absen === 'DATANG') {
-            //         $disableDatangButton = true;
-            //         $disablePulangButton = false;
-            //     } elseif ($lastRow->status_absen === 'PULANG') {
-            //         $disableDatangButton = false;
-            //         $disablePulangButton = true;
-            //     }
-            // }
-
             return view('absensi', [
                 'listData' => $listAbsen,
                 'disableDatangButton' => $disableDatangButton,
