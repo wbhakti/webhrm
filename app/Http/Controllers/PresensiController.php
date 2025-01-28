@@ -45,6 +45,9 @@ class PresensiController extends Controller
                 'photo' => 'required|image|mimes:jpeg,png,jpg|max:2048',
             ]);
 
+            //ambil data alamat
+            $alamat = $request->input('alamat');
+
             // Ambil file gambar
             $image = $request->file('photo');
             $imagePath = public_path('uploads');
@@ -69,6 +72,49 @@ class PresensiController extends Controller
                     'success' => false,
                 ]);
             }
+
+            // Pilih font dan ukuran
+            $font = public_path('arial.ttf');
+            $fontSize = 12;
+            $textColor = imagecolorallocate($source, 255, 255, 255); // Warna putih
+            $x = 10; // Posisi horizontal margin kiri
+            $y = imagesy($source) - 50; // Posisi vertical margin bawah
+            $lineHeight = 20; // Jarak antar baris
+
+            // Pecah teks alamat
+            $maxWidth = imagesx($source) - 20; //Lebar maksimum teks
+            $words = explode(' ', $alamat);
+            $lines = [];
+            $currentLine = '';
+
+            foreach ($words as $word) {
+                $testLine = $currentLine . ($currentLine === '' ? '' : ' ') . $word;
+                $bbox = imagettfbbox($fontSize, 0, $font, $testLine);
+                $lineWidth = $bbox[2] - $bbox[0];
+
+                if ($lineWidth > $maxWidth) {
+                    $lines[] = $currentLine;
+                    $currentLine = $word;
+                } else {
+                    $currentLine = $testLine;
+                }
+            }
+
+            if (!empty($currentLine)) {
+                $lines[] = $currentLine;
+            }
+
+            //teks ke gambar baris per baris
+            foreach ($lines as $line) {
+                imagettftext($source, $fontSize, 0, $x, $y, $textColor, $font, $line);
+                $y += $lineHeight;
+            }
+
+            // Tambah timestamp
+            $timestamp = Carbon::now()->addHours(7)->format('Y-m-d H:i:s');
+            $xTimestamp = 10; // Posisi horizontal margin kiri
+            $yTimestamp = 20; // Posisi atas kiri
+            imagettftext($source, $fontSize, 0, $xTimestamp, $yTimestamp, $textColor, $font, $timestamp);
 
             // Resize gambar
             imagecopyresampled($tmp, $source, 0, 0, 0, 0, $newWidth, $newHeight, $width, $height);

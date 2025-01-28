@@ -121,7 +121,7 @@
             });
     }
 
-    function takeSelfie() {
+    async function takeSelfie() {
         const canvas = document.getElementById('selfie-canvas');
         const video = document.getElementById('camera-stream');
 
@@ -131,7 +131,7 @@
         const context = canvas.getContext('2d');
         context.drawImage(video, 0, 0, canvas.width, canvas.height);
 
-        // Hentikan stream kamera
+        // stop stream kamera
         if (cameraStream) {
             cameraStream.getTracks().forEach(track => track.stop());
         }
@@ -139,47 +139,62 @@
         // Konversi gambar ke data URL
         const dataURL = canvas.toDataURL('image/png');
 
-        // Upload gambar
-        uploadPhoto(dataURL);
+        // ambil lokasi pengguna
+        if (navigator.geolocation) {
+            navigator.geolocation.getCurrentPosition(
+                async (position) => {
+                    const latitude = position.coords.latitude;
+                    const longitude = position.coords.longitude;
+                    const responsealamat = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}`);
+                    const dataalamat = await responsealamat.json();
+
+                    if (dataalamat && dataalamat.display_name) {
+                        uploadPhoto(dataURL, dataalamat.display_name);
+                    } else {
+                        uploadPhoto(dataURL, '-');
+                    }
+                },
+                (error) => {
+                    alert('Gagal mengakses lokasi. Pastikan GPS aktif');
+                }
+            );
+        } else {
+            alert('Geolocation tidak didukung oleh browser Anda.');
+        }
     }
 
-    function uploadPhoto(dataURL) {
+    function uploadPhoto(dataURL, alamat) {
 
         // Ambil status absensi dari atribut dataset
         const status = document.getElementById('cameraModal').dataset.status;
-
-        // Ubah dataURL ke Blob
         const blob = dataURLToBlob(dataURL);
-
-        // Membuat nama file unik dengan menambahkan timestamp
         const fileName = 'selfie' + status + '_' + Date.now() + '.png';
 
-        // Buat form data untuk diunggah
         const formData = new FormData();
         formData.append('photo', blob, fileName);
         formData.append('status', status);
+        formData.append('alamat', alamat);
 
-        // Kirim request menggunakan Fetch API
-        fetch('/upload-foto', {
-                method: 'POST',
-                headers: {
-                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
-                },
-                body: formData
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    alert('Foto berhasil diunggah');
-                    // Tutup modal setelah alert
-                    const cameraModal = bootstrap.Modal.getInstance(document.getElementById('cameraModal'));
-                    cameraModal.hide();
-                    location.reload();
-                } else {
-                    alert('Gagal mengunggah foto.');
-                }
-            })
-            .catch(error => console.error('Error:', error));
+                        fetch('/upload-foto', {
+                            method: 'POST',
+                            headers: {
+                                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+                            },
+                            body: formData
+                        })
+                        .then(response => response.json())
+                        .then(data => {
+                            if (data.success) {
+                                alert('Foto berhasil diunggah');
+                                // Tutup modal setelah alert
+                                const cameraModal = bootstrap.Modal.getInstance(document.getElementById('cameraModal'));
+                                cameraModal.hide();
+                                location.reload();
+                            } else {
+                                alert('Gagal mengunggah foto.');
+                            }
+                        })
+                        .catch(error => console.error('Error:', error));
     }
 
     function dataURLToBlob(dataURL) {
