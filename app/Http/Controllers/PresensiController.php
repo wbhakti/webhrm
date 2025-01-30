@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\File;
 
 class PresensiController extends Controller
 {
@@ -50,7 +51,14 @@ class PresensiController extends Controller
 
             // Ambil file gambar
             $image = $request->file('photo');
-            $imagePath = public_path('uploads');
+            $yearMonth = Carbon::now()->format('Y-m');
+            $imagePath = public_path("uploads/$yearMonth");
+            //$imagePath = public_path('uploads');
+            // Buat folder jika belum ada
+            if (!File::exists($imagePath)) {
+                File::makeDirectory($imagePath, 0755, true, true);
+            }
+            
             $fileName = $image->getClientOriginalName();
 
             // kompres image
@@ -132,7 +140,8 @@ class PresensiController extends Controller
             DB::table('presensi')->insert([
                 'status_absen' => $request->input('status'),
                 'nama_karyawan' => session('nama'),
-                'foto_kehadiran' => $request->file('photo')->getClientOriginalName(),
+                'foto_kehadiran' => "/$yearMonth/$fileName",
+                //'foto_kehadiran' => $request->file('photo')->getClientOriginalName(),
                 'id_karyawan' => session('id'),
                 'outlet' => session('outlet'),
                 'addtime' => Carbon::now()->addHours(7)->format('Y-m-d H:i:s'),
