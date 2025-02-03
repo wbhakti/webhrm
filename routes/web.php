@@ -28,6 +28,7 @@ Route::group(['middleware' => ['checkLogin', 'checkRole:1,3']], function () {
     Route::post('/postapprovalcuti', 'App\Http\Controllers\CutiController@PostApprovalCuti');
     Route::get('/get-jabatan/{id}', 'App\Http\Controllers\UserController@getJabatan');
     Route::get('/get-outlet', 'App\Http\Controllers\OutletController@getOutlet');
+    Route::get('/dashboard/report-cuti', 'App\Http\Controllers\CutiController@ReportCuti');
 });
 
 //role admin data

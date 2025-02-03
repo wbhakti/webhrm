@@ -108,6 +108,7 @@
                             <div class="collapse" id="collapseLayouts_cuti" aria-labelledby="headingOne" data-bs-parent="#sidenavAccordion">
                                 <nav class="sb-sidenav-menu-nested nav">
                                     <a class="nav-link" href="{{ url('dashboard/approval-cuti') }}">Approval Cuti</a>
+                                    <a class="nav-link" href="{{ url('dashboard/report-cuti') }}">Report Cuti</a>
                                 </nav>
                             </div>
 
@@ -199,7 +200,7 @@
             <footer class="py-4 bg-light mt-auto">
                 <div class="container-fluid px-4">
                     <div class="d-flex align-items-center justify-content-between small">
-                        <div class="text-muted">Copyright &copy; Web HRM 2024 (v201224)</div>
+                        <div class="text-muted">Copyright &copy; Web HRM 2024 (v030225)</div>
                         
                     </div>
                 </div>

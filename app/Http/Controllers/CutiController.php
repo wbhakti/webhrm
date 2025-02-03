@@ -192,10 +192,10 @@ class CutiController extends Controller
         }
     }
 
-    public function HistoryCuti(Request $request)
+    public function HistoryCuti()
     {
         try{
-            
+
             // Buat query dasar
             $listCuti = DB::table('history_cuti')
             ->join('karyawan', 'karyawan.id_karyawan', '=', 'history_cuti.id_karyawan')
@@ -211,6 +211,122 @@ class CutiController extends Controller
             return view('riwayatcuti', [
                 'listData' => $listCuti
             ]);
+            
+        }catch(\Exception $e){
+            Log::error('Error occurred report : ' . $e->getMessage());
+            return redirect('/dashboard')->with('error', 'Terjadi kesalahan ambil data cuti');
+        }
+    }
+
+    public function ReportCuti(Request $request)
+    {
+        try{
+
+            $startDate = $request->start_date;
+            $endDate = $request->end_date;
+            
+            if ($request->action == "download") {
+                $listCuti = DB::table('history_cuti')
+                ->join('karyawan', 'karyawan.id_karyawan', '=', 'history_cuti.id_karyawan')
+                ->join('status_cuti', 'status_cuti.id_status_cuti', '=', 'history_cuti.status')
+                ->where('addtime', '>=', $startDate . ' 00:00:00')
+                ->where('addtime', '<=', $endDate . ' 23:59:59')
+                ->select(
+                    'history_cuti.*', 
+                    'karyawan.NAMA as nama_karyawan',
+                    'status_cuti.status as status_cuti'
+                )
+                ->get();
+            
+                if ($listCuti->isEmpty()) {
+                    return back()->with('error', 'Tidak ada data untuk tanggal yang dipilih.');
+                }
+            
+                $spreadsheet = new \PhpOffice\PhpSpreadsheet\Spreadsheet();
+                $sheet = $spreadsheet->getActiveSheet();
+            
+                // Header laporan
+                $sheet->setCellValue('A1', 'Laporan Cuti');
+                $sheet->mergeCells('A1:G1');
+                $sheet->getStyle('A1')->getFont()->setBold(true)->setSize(16);
+                $sheet->getStyle('A1')->getAlignment()->setHorizontal(\PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER);
+            
+                $sheet->setCellValue('A2', 'Periode: ' . date('d-m-Y', strtotime($startDate)) . ' s/d ' . date('d-m-Y', strtotime($endDate)));
+                $sheet->mergeCells('A2:G2');
+                $sheet->getStyle('A2')->getAlignment()->setHorizontal(\PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER);
+            
+                $sheet->setCellValue('A3', 'Tanggal Generate: ' . date('d-m-Y H:i:s', strtotime('+7 hours')));
+                $sheet->mergeCells('A3:G3');
+                $sheet->getStyle('A3')->getAlignment()->setHorizontal(\PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER);
+            
+                // Header kolom
+                $startRow = 5;
+                $sheet->setCellValue("A$startRow", 'No');
+                $sheet->setCellValue("B$startRow", 'Nama');
+                $sheet->setCellValue("C$startRow", 'Jumlah Cuti');
+                $sheet->setCellValue("D$startRow", 'Mulai Cuti');
+                $sheet->setCellValue("E$startRow", 'Selesai Cuti');
+                $sheet->setCellValue("F$startRow", 'Alasan Cuti');
+                $sheet->setCellValue("G$startRow", 'Status Cuti');
+            
+                // Styling header kolom
+                $sheet->getStyle("A$startRow:G$startRow")->getFont()->setBold(true);
+                $sheet->getStyle("A$startRow:G$startRow")->getAlignment()->setHorizontal(\PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER);
+                $sheet->getStyle("A$startRow:G$startRow")->getBorders()->getAllBorders()->setBorderStyle(\PhpOffice\PhpSpreadsheet\Style\Border::BORDER_THIN);
+            
+                // Mengisi data ke sheet
+                $row = $startRow + 1;
+                $no = 1;
+                foreach ($listCuti as $data) {
+                    $sheet->setCellValue("A$row", $no++);
+                    $sheet->setCellValue("B$row", $data->nama_karyawan);
+                    $sheet->setCellValue("C$row", $data->JUMLAH_HARI . ' Hari');
+                    $sheet->setCellValue("D$row", date('d-m-Y', strtotime($data->TANGGAL_AWAL)));
+                    $sheet->setCellValue("E$row", date('d-m-Y', strtotime($data->TANGGAL_AKHIR)));
+                    $sheet->setCellValue("F$row", $data->alasan_cuti);
+                    $sheet->setCellValue("G$row", $data->status_cuti);
+            
+                    // Menambahkan border pada setiap baris
+                    $sheet->getStyle("A$row:G$row")->getBorders()->getAllBorders()->setBorderStyle(\PhpOffice\PhpSpreadsheet\Style\Border::BORDER_THIN);
+            
+                    $row++;
+                }
+            
+                // Auto-size kolom
+                foreach (range('A', 'G') as $columnID) {
+                    $sheet->getColumnDimension($columnID)->setAutoSize(true);
+                }
+            
+                $fileName = 'LaporanCuti_' . date('Ymd', strtotime($startDate)) . '_sampai_' . date('Ymd', strtotime($endDate)) . '.xlsx';
+                $filePath = public_path($fileName);
+                $writer = new \PhpOffice\PhpSpreadsheet\Writer\Xlsx($spreadsheet);
+                $writer->save($filePath);
+            
+                return response()->download($filePath)->deleteFileAfterSend(true);
+            }else{
+
+                $listCuti = DB::table('history_cuti')
+                ->join('karyawan', 'karyawan.id_karyawan', '=', 'history_cuti.id_karyawan')
+                ->join('status_cuti', 'status_cuti.id_status_cuti', '=', 'history_cuti.status')
+                ->where('addtime', '>=', $startDate . ' 00:00:00')
+                ->where('addtime', '<=', $endDate . ' 23:59:59')
+                ->select(
+                    'history_cuti.*', 
+                    'karyawan.NAMA as nama_karyawan',
+                    'status_cuti.status as status_cuti'
+                )
+                ->get();
+
+                return view('reportcuti', [
+                    'listData' => $listCuti,
+                    'startdate' => Carbon::parse($request->start_date)->format('d-m-Y'),
+                    'enddate' => Carbon::parse($request->end_date)->format('d-m-Y'),
+                    'start_date' => $request->start_date,
+                    'end_date' => $request->end_date,
+                ]);
+
+            }
+            
         }catch(\Exception $e){
             Log::error('Error occurred report : ' . $e->getMessage());
             return redirect('/dashboard')->with('error', 'Terjadi kesalahan ambil data cuti');
