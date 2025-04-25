@@ -473,7 +473,7 @@ class UserController extends Controller
             $nik = $nikBase . str_pad($incrementPart, 3, '0', STR_PAD_LEFT);
 
             // Mencari apakah NIK sudah ada di database
-            $exists = DB::table('karyawan')->where('nik', $nik)->exists();
+            $exists = DB::table('karyawan')->where('nomor_karyawan', $nik)->exists();
 
             // Jika NIK ada, increment angka
             if ($exists) {
