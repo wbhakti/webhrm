@@ -113,7 +113,7 @@
                         <input type="text" class="form-control" id="modalOutlet" readonly disabled>
                     </div>
                     <div class="form-group mb-2">
-                        <label for="modalNik"><strong>NIK:</strong></label>
+                        <label for="modalNik"><strong>NIK (nomor induk kependudukan):</strong></label>
                         <input type="text" class="form-control" id="modalNik" readonly disabled>
                     </div>
                     <div class="form-group mb-2">
@@ -211,7 +211,7 @@
                             </select>
                         </div>
                         <div class="form-group mb-2">
-                            <label for="modalNik"><strong>NIK:</strong></label>
+                            <label for="modalNik"><strong>NIK (nomor induk kependudukan):</strong></label>
                             <input type="text" class="form-control" id="modalNik" name="nik" value="">
                         </div>
                         <div class="form-group mb-2">
@@ -281,7 +281,7 @@
 
 @if (session('success'))
 <script>
-    alert('{{ session(' success ') }}');
+    alert('{{ session('success') }}');
 </script>
 @endif
 

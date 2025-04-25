@@ -70,6 +70,11 @@
                 </div>
 
                 <div class="mb-3">
+                    <label for="ktp" class="form-label"><b>NIK (nomor induk kependudukan)</b></label>
+                    <input type="number" class="form-control" id="ktp" name="ktp" maxlength="20" required>
+                </div>
+
+                <div class="mb-3">
                     <label for="tempatLahir" class="form-label"><b>Tempat Lahir</b></label>
                     <input type="text" class="form-control" id="tempatLahir" name="tempat_lahir" maxlength="50" required>
                 </div>

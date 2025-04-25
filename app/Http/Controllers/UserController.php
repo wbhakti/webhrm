@@ -87,7 +87,7 @@ class UserController extends Controller
             }
 
             $listKaryawan = $query->get();
-
+            
             foreach ($listKaryawan as $karyawan) {
                 $karyawan->formatted_tanggal_lahir = Carbon::parse($karyawan->TANGGAL_LAHIR)->format('d F Y');
                 $karyawan->formatted_tanggal_gabung = Carbon::parse($karyawan->TANGGAL_BERGABUNG)->format('d F Y');
@@ -164,7 +164,7 @@ class UserController extends Controller
             }
 
             DB::table('karyawan')->insert([
-                'NIK' => $nik,
+                'NIK' => $request->input('ktp'),
                 'NAMA' => $request->input('nama'),
                 'TEMPAT_LAHIR' => $request->input('tempat_lahir'),
                 'TANGGAL_LAHIR' => $request->input('tanggal_lahir'),
@@ -182,11 +182,12 @@ class UserController extends Controller
                 'AKHIR_KONTRAK' => $akhirKontrak,
                 'SALDO_CUTI' => '12',
                 'PASSWORD' => $passHash,
-                'ROLE' => $request->input('role')
+                'ROLE' => $request->input('role'),
+                'nomor_karyawan' => $nik
             ]);
 
             //auto kirim email konfirmasi, dan password
-            $this->sendEmailRegistration($request, $pass, $nik);
+            $this->sendEmailRegistration($request, $pass, $request->input('ktp'));
 
             return redirect('/dashboard/list-karyawan')->with('success', 'Berhasil simpan data karyawan');
         } catch (\Exception $e) {
@@ -497,4 +498,5 @@ class UserController extends Controller
             return response()->json(['message' => 'Terjadi kesalahan.'], 400);
         }
     }
+
 }
