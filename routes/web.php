@@ -20,6 +20,7 @@ Route::group(['middleware' => ['checkLogin', 'checkRole:1,3']], function () {
     Route::post('/postaddkaryawan', 'App\Http\Controllers\UserController@PostEmploye');
     Route::post('/posteditkaryawan', 'App\Http\Controllers\UserController@EditEmploye');
     Route::post('/postdeletekaryawan', 'App\Http\Controllers\UserController@DeleteEmploye');
+    Route::post('/resetpasswordkaryawan', 'App\Http\Controllers\UserController@ResetPasswordEmploye');
     Route::get('/dashboard/list-outlet', 'App\Http\Controllers\OutletController@ListOutlet');
     Route::get('/dashboard/tambah-outlet', 'App\Http\Controllers\OutletController@AddOutlet');
     Route::post('/postaddoutlet', 'App\Http\Controllers\OutletController@PostOutlet');

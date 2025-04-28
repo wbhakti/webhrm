@@ -73,11 +73,14 @@
                     <td>{{ $item->nama_toko }}</td>
                     <td>{{ $item->STATUS_KARYAWAN }}</td>
                     <td>
-                        <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#detailsModal" data-nama="{{ $item->NAMA }}" data-nomorhp="{{ $item->NO_HP }}" data-email="{{ $item->EMAIL }}" data-bagian="{{ $item->nama_bagian }}" data-jabatan="{{ $item->nama_jabatan }}" data-status="{{ $item->STATUS_KARYAWAN }}" data-nik="{{ $item->NIK }}" data-tptlahir="{{ $item->TEMPAT_LAHIR }}" data-tgllahir="{{ $item->formatted_tanggal_lahir }}" data-alamatktp="{{ $item->ALAMAT_KTP }}" data-alamattgl="{{ $item->ALAMAT_TINGGAL }}" data-outlet="{{ $item->nama_toko }}" data-masakontrak="{{ $item->MASA_KONTRAK }}" data-awalkontrak="{{ $item->formatted_awal_kontrak }}" data-akhirkontrak="{{ $item->formatted_akhir_kontrak }}" data-saldocuti="{{ $item->SALDO_CUTI }}" data-tglgabung="{{ $item->formatted_tanggal_gabung }}" data-id="{{ $item->ID_KARYAWAN }}">
+                        <button type="button" class="btn btn-success me-1" data-bs-toggle="modal" data-bs-target="#detailsModal" data-nama="{{ $item->NAMA }}" data-nomorhp="{{ $item->NO_HP }}" data-email="{{ $item->EMAIL }}" data-bagian="{{ $item->nama_bagian }}" data-jabatan="{{ $item->nama_jabatan }}" data-status="{{ $item->STATUS_KARYAWAN }}" data-nik="{{ $item->NIK }}" data-tptlahir="{{ $item->TEMPAT_LAHIR }}" data-tgllahir="{{ $item->formatted_tanggal_lahir }}" data-alamatktp="{{ $item->ALAMAT_KTP }}" data-alamattgl="{{ $item->ALAMAT_TINGGAL }}" data-outlet="{{ $item->nama_toko }}" data-masakontrak="{{ $item->MASA_KONTRAK }}" data-awalkontrak="{{ $item->formatted_awal_kontrak }}" data-akhirkontrak="{{ $item->formatted_akhir_kontrak }}" data-saldocuti="{{ $item->SALDO_CUTI }}" data-tglgabung="{{ $item->formatted_tanggal_gabung }}" data-id="{{ $item->ID_KARYAWAN }}">
                             Detail
                         </button>
-                        <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#editModal" data-nama="{{ $item->NAMA }}" data-nomorhp="{{ $item->NO_HP }}" data-email="{{ $item->EMAIL }}" data-bagian="{{ $item->nama_bagian }}" data-jabatan="{{ $item->nama_jabatan }}" data-status="{{ $item->STATUS_KARYAWAN }}" data-nik="{{ $item->NIK }}" data-tptlahir="{{ $item->TEMPAT_LAHIR }}" data-tgllahir="{{ $item->formatted_tanggal_lahir_edit }}" data-alamatktp="{{ $item->ALAMAT_KTP }}" data-alamattgl="{{ $item->ALAMAT_TINGGAL }}" data-outlet="{{ $item->nama_toko }}" data-masakontrak="{{ $item->MASA_KONTRAK }}" data-awalkontrak="{{ $item->formatted_awal_kontrak_edit }}" data-akhirkontrak="{{ $item->formatted_akhir_kontrak_edit }}" data-saldocuti="{{ $item->SALDO_CUTI }}" data-tglgabung="{{ $item->formatted_tanggal_gabung_edit }}" data-id="{{ $item->ID_KARYAWAN }}">
+                        <button type="button" class="btn btn-primary me-1" data-bs-toggle="modal" data-bs-target="#editModal" data-nama="{{ $item->NAMA }}" data-nomorhp="{{ $item->NO_HP }}" data-email="{{ $item->EMAIL }}" data-bagian="{{ $item->nama_bagian }}" data-jabatan="{{ $item->nama_jabatan }}" data-status="{{ $item->STATUS_KARYAWAN }}" data-nik="{{ $item->NIK }}" data-tptlahir="{{ $item->TEMPAT_LAHIR }}" data-tgllahir="{{ $item->formatted_tanggal_lahir_edit }}" data-alamatktp="{{ $item->ALAMAT_KTP }}" data-alamattgl="{{ $item->ALAMAT_TINGGAL }}" data-outlet="{{ $item->nama_toko }}" data-masakontrak="{{ $item->MASA_KONTRAK }}" data-awalkontrak="{{ $item->formatted_awal_kontrak_edit }}" data-akhirkontrak="{{ $item->formatted_akhir_kontrak_edit }}" data-saldocuti="{{ $item->SALDO_CUTI }}" data-tglgabung="{{ $item->formatted_tanggal_gabung_edit }}" data-id="{{ $item->ID_KARYAWAN }}">
                             Edit
+                        </button>
+                        <button type="button" class="btn btn-warning" data-bs-toggle="modal" data-bs-target="#resetModal" data-nama="{{ $item->NAMA }}" data-email="{{ $item->EMAIL }}" data-id="{{ $item->ID_KARYAWAN }}">
+                            Reset Password
                         </button>
                     </td>
                 </tr>
@@ -276,12 +279,52 @@
         </div>
     </div>
 
+    <div class="modal fade" id="resetModal" tabindex="-1" aria-labelledby="resetModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-scrollable" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="resetModalLabel">Reset Password Karyawan</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="resetKaryawanForm" action="/resetpasswordkaryawan" method="POST">
+                        @csrf
+                        <div class="form-group mb-2">
+                            <label for="modalNama"><strong>Nama Karyawan:</strong></label>
+                            <input type="hidden" id="modalid" name="idkaryawan" value="">
+                            <input type="text" class="form-control" id="modalNama" name="nama_karyawan" value="" readonly disabled>
+                        </div>
+                        <div class="form-group mb-2">
+                            <label for="modalEmail"><strong>Email:</strong></label>
+                            <input type="hidden" id="modalEmail" name="email" value="">
+                            <input type="email" class="form-control" id="modalEmail" name="" value="" readonly disabled>
+                        </div>
+                        <div class="form-group mb-2">
+                            <label for="modalTptLahir"><strong>Password Baru:</strong></label>
+                            <input type="text" class="form-control" name="password" value="" placeholder="password baru" required maxlength="6">
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                            <button type="submit" class="btn btn-primary">Reset</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
 </div>
 
 
 @if (session('success'))
 <script>
     alert('{{ session('success') }}');
+</script>
+@endif
+
+@if (session('error'))
+<script>
+    alert('{{ session('error') }}');
 </script>
 @endif
 
@@ -543,6 +586,22 @@
             } else {
                 $('#kontrak-container').hide();
             }
+        });
+
+        //detail
+        $('#resetModal').on('show.bs.modal', function(event) {
+            var button = $(event.relatedTarget);
+            var modal = $(this);
+
+            // Ambil data dari atribut tombol
+            var id = button.data('id');
+            var nama = button.data('nama');
+            var email = button.data('email');
+            
+            // Set data ke dalam modal
+            modal.find('#modalid').val(id);
+            modal.find('#modalNama').val(nama);
+            modal.find('#modalEmail').val(email);
         });
 
     });

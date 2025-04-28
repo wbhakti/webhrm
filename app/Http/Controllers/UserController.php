@@ -329,6 +329,43 @@ class UserController extends Controller
         }
     }
 
+    public function ResetPasswordEmploye(Request $request)
+    {
+        try {
+
+            $pass = $request->input('password');
+            $email = $request->input('email');
+            $passHash = base64_encode(hash_hmac('sha256', $email . ':' . $pass, '#@R4dJaAN91n?#@', true));
+
+            //cek user
+            $user = DB::table('karyawan')
+                ->where('email', $email)
+                ->where('id_karyawan', $request->input('idkaryawan'))
+                ->first();
+
+            if (empty($user)) {
+                return back()->with('error', 'Email tidak terdaftar!');
+            } else {
+
+                //update password
+                DB::table('karyawan')
+                    ->where('email', $email)
+                    ->where('id_karyawan', $request->input('idkaryawan'))
+                    ->update([
+                        'password' => $passHash,
+                    ]);
+
+                //auto kirim email konfirmasi, dan password
+                $this->SendEmailResetPassword($user->NAMA, $email, '-', $pass);
+
+                return back()->with('success', 'Reset password berhasil, silahkan cek Email untuk info password terbaru.');
+            }
+        } catch (\Exception $e) {
+            Log::error('Error occurred report : ' . $e->getMessage());
+            return back()->with('error', 'Terjadi kesalahan server');
+        }
+    }
+
     public function SendEmailRegistration(Request $request, $password, $nik)
     {
         try {
