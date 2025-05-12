@@ -30,19 +30,20 @@ Route::group(['middleware' => ['checkLogin', 'checkRole:1,3']], function () {
     Route::get('/get-jabatan/{id}', 'App\Http\Controllers\UserController@getJabatan');
     Route::get('/get-outlet', 'App\Http\Controllers\OutletController@getOutlet');
     Route::get('/dashboard/report-cuti', 'App\Http\Controllers\CutiController@ReportCuti');
+    Route::get('/get-provinsi', 'App\Http\Controllers\OutletController@getProvinsi');
+    Route::get('/get-kota/{id}', 'App\Http\Controllers\OutletController@getKota');
+    Route::get('/get-kecamatan/{id}', 'App\Http\Controllers\OutletController@getKecamatan');
+    Route::get('/get-kelurahan/{id}', 'App\Http\Controllers\OutletController@getKelurahan');
 });
 
-//role admin data
 
-//role user
-Route::group(['middleware' => ['checkLogin', 'checkRole:4']], function () {
+//role user & admin data
+Route::group(['middleware' => ['checkLogin', 'checkRole:2,4']], function () {
     Route::get('/dashboard/riwayat-cuti', 'App\Http\Controllers\CutiController@HistoryCuti');
     Route::get('/dashboard/pengajuan-cuti', 'App\Http\Controllers\CutiController@AddCuti');
     Route::post('/postaddcuti', 'App\Http\Controllers\CutiController@PostAddCuti');
     Route::get('/dashboard/absensi', 'App\Http\Controllers\PresensiController@Absensi');
-    
     Route::post('/upload-foto', 'App\Http\Controllers\PresensiController@uploadfoto');
-    
 });
 
 //bebas role admin & user
@@ -51,10 +52,6 @@ Route::group(['middleware' => 'checkLogin'], function () {
     Route::get('/dashboard', 'App\Http\Controllers\DashboardController@index')->name('dashboard');
     Route::get('/dashboard/ubah-password', 'App\Http\Controllers\UserController@ChangePassword');
     Route::post('/postubahpassword', 'App\Http\Controllers\UserController@PostChangePassword');
-    Route::get('/get-provinsi', 'App\Http\Controllers\OutletController@getProvinsi');
-    Route::get('/get-kota/{id}', 'App\Http\Controllers\OutletController@getKota');
-    Route::get('/get-kecamatan/{id}', 'App\Http\Controllers\OutletController@getKecamatan');
-    Route::get('/get-kelurahan/{id}', 'App\Http\Controllers\OutletController@getKelurahan');
     Route::get('/dashboard/report-absensi', 'App\Http\Controllers\PresensiController@ReportAbsensi');
     Route::get('/getreportabsen', 'App\Http\Controllers\PresensiController@PostReportAbsen');
 });

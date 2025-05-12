@@ -66,7 +66,13 @@
         <!-- Navbar-->
         <ul class="navbar-nav ms-auto ms-md-0 me-3 me-lg-4">
             <li class="nav-item dropdown">
-                <a class="nav-link dropdown-toggle" id="navbarDropdown" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">User <i class="fas fa-user fa-fw"></i></a>
+                @if(Session::get('role') == '1' || Session::get('role') == '3')
+                    <a class="nav-link dropdown-toggle" id="navbarDropdown" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">ADMIN <i class="fas fa-user fa-fw"></i></a>
+                @elseif(Session::get('role') == '2')
+                    <a class="nav-link dropdown-toggle" id="navbarDropdown" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">ADMIN DATA <i class="fas fa-user fa-fw"></i></a>
+                @else
+                <a class="nav-link dropdown-toggle" id="navbarDropdown" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">KARYAWAN <i class="fas fa-user fa-fw"></i></a>
+                @endif
                 <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
                     <li><a class="dropdown-item" href="#!">Profile</a></li>
                     <li><hr class="dropdown-divider" /></li>
@@ -145,6 +151,40 @@
                                     <a class="nav-link" href="{{ url('dashboard/ubah-password') }}">Ubah Password</a>
                                 </nav>
                             </div>
+                        @elseif(Session::get('role') == '2')
+                            <div class="sb-sidenav-menu-heading">Admin Data</div>
+                            <a class="nav-link collapsed" href="#" data-bs-toggle="collapse" data-bs-target="#collapseLayouts_absensi" aria-expanded="false" aria-controls="collapseLayouts">
+                                <div class="sb-nav-link-icon"><i class="fas fa-columns"></i></div>
+                                Presensi
+                                <div class="sb-sidenav-collapse-arrow"><i class="fas fa-angle-down"></i></div>
+                            </a>
+                            <div class="collapse" id="collapseLayouts_absensi" aria-labelledby="headingOne" data-bs-parent="#sidenavAccordion">
+                                <nav class="sb-sidenav-menu-nested nav">
+                                    <a class="nav-link" href="{{ url('dashboard/absensi') }}">Absen</a>
+                                    <a class="nav-link" href="{{ url('dashboard/report-absensi') }}">Report Absen</a>
+                                </nav>
+                            </div>
+                            <a class="nav-link collapsed" href="#" data-bs-toggle="collapse" data-bs-target="#collapseLayouts_pengajuancuti" aria-expanded="false" aria-controls="collapseLayouts">
+                                <div class="sb-nav-link-icon"><i class="fas fa-columns"></i></div>
+                                Pengajuan Cuti
+                                <div class="sb-sidenav-collapse-arrow"><i class="fas fa-angle-down"></i></div>
+                            </a>
+                            <div class="collapse" id="collapseLayouts_pengajuancuti" aria-labelledby="headingOne" data-bs-parent="#sidenavAccordion">
+                                <nav class="sb-sidenav-menu-nested nav">
+                                    <a class="nav-link" href="{{ url('dashboard/pengajuan-cuti') }}">Input Cuti</a>
+                                    <a class="nav-link" href="{{ url('dashboard/riwayat-cuti') }}">Riwayat Cuti</a>
+                                </nav>
+                            </div>
+                            <a class="nav-link collapsed" href="#" data-bs-toggle="collapse" data-bs-target="#collapseLayouts_profile" aria-expanded="false" aria-controls="collapseLayouts">
+                                <div class="sb-nav-link-icon"><i class="fas fa-columns"></i></div>
+                                Pengaturan
+                                <div class="sb-sidenav-collapse-arrow"><i class="fas fa-angle-down"></i></div>
+                            </a>
+                            <div class="collapse" id="collapseLayouts_profile" aria-labelledby="headingOne" data-bs-parent="#sidenavAccordion">
+                                <nav class="sb-sidenav-menu-nested nav">
+                                    <a class="nav-link" href="{{ url('dashboard/ubah-password') }}">Ubah Password</a>
+                                </nav>
+                            </div>
                         @else
                             <div class="sb-sidenav-menu-heading">User</div>
                             <a class="nav-link collapsed" href="#" data-bs-toggle="collapse" data-bs-target="#collapseLayouts_absensi" aria-expanded="false" aria-controls="collapseLayouts">
@@ -155,7 +195,9 @@
                             <div class="collapse" id="collapseLayouts_absensi" aria-labelledby="headingOne" data-bs-parent="#sidenavAccordion">
                                 <nav class="sb-sidenav-menu-nested nav">
                                     <a class="nav-link" href="{{ url('dashboard/absensi') }}">Absen</a>
-                                    <a class="nav-link" href="{{ url('dashboard/report-absensi') }}">Report Absen</a>
+                                    @if(Session::get('jabatan') == '10')
+                                        <a class="nav-link" href="{{ url('dashboard/report-absensi') }}">Report Absen</a>
+                                    @endif
                                 </nav>
                             </div>
                             <a class="nav-link collapsed" href="#" data-bs-toggle="collapse" data-bs-target="#collapseLayouts_pengajuancuti" aria-expanded="false" aria-controls="collapseLayouts">

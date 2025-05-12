@@ -36,7 +36,7 @@ class UserController extends Controller
 
             if ($user) {
                 // Redirect ke halaman dashboard atau halaman lainnya
-                session(['user_id' => $request->input('username'), 'role' => $user->ROLE, 'id' => $user->ID_KARYAWAN, 'nama' => $user->NAMA, 'outlet' => $user->OUTLET]);
+                session(['user_id' => $request->input('username'), 'role' => $user->ROLE, 'id' => $user->ID_KARYAWAN, 'nama' => $user->NAMA, 'outlet' => $user->OUTLET, 'jabatan'=>$user->JABATAN]);
                 return redirect()->route('dashboard');
             } else {
                 // Jika username tidak ditemukan atau password salah, kembali ke halaman login dengan pesan error

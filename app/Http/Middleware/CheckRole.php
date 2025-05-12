@@ -20,7 +20,7 @@ class CheckRole
         
         //ada dalam list role yang diizinkan
         if (!in_array($userRole, $roles)) {
-            return redirect('/dashboard')->with('error', 'Anda tidak memiliki akses ke halaman ini.');
+            return redirect('/dashboard')->with('error', 'Anda tidak memiliki akses ke halaman ini.X');
         }
 
         return $next($request);

@@ -170,7 +170,7 @@ class PresensiController extends Controller
             if ($user->JABATAN == '10') {
                 return view('reportabsensi');
             } else {
-                if ($user->ROLE == '3') {
+                if ($user->ROLE == '1' or $user->ROLE == '2' or $user->ROLE == '3') {
                     //khusus HRD ada filter outlet
                     $listOutlet = DB::table('outlet')->get();
                     return view('reportabsensi', [
@@ -242,7 +242,7 @@ class PresensiController extends Controller
 
                 // Cek user
                 $listOutlet = collect();
-                if (session('role') == '3') {
+                if (session('role') == '2' or session('role') == '3') {
                     $listOutlet = DB::table('outlet')->get();
                 }
 
