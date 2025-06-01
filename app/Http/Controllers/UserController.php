@@ -65,7 +65,7 @@ class UserController extends Controller
                 );
             $query->where('karyawan.is_delete', false);
 
-            if (session('role') == "2" || session('role') == "3") {
+            if (session('role') == "2") {
                 //admin data dan admin hrd hanya bisa ambil data role user
                 $query->where('karyawan.ROLE', '4');
             }
