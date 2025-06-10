@@ -32,6 +32,7 @@ class UserController extends Controller
             $user = DB::table('karyawan')
                 ->where('email', $request->input('username'))
                 ->where('password', $passHash)
+                ->where('is_delete', false)
                 ->first();
 
             if ($user) {
