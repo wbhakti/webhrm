@@ -53,6 +53,7 @@ Route::group(['middleware' => 'checkLogin'], function () {
     Route::get('/dashboard/ubah-password', 'App\Http\Controllers\UserController@ChangePassword');
     Route::post('/postubahpassword', 'App\Http\Controllers\UserController@PostChangePassword');
     Route::get('/dashboard/report-absensi', 'App\Http\Controllers\PresensiController@ReportAbsensi');
+    Route::get('/dashboard/report-absensi-office', 'App\Http\Controllers\PresensiController@ReportAbsensiOffice');
     Route::get('/getreportabsen', 'App\Http\Controllers\PresensiController@PostReportAbsen');
 });
 

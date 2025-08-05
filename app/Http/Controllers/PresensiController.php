@@ -174,11 +174,34 @@ class PresensiController extends Controller
                     //khusus HRD ada filter outlet
                     $listOutlet = DB::table('outlet')->get();
                     return view('reportabsensi', [
-                        'outlets' => $listOutlet
+                        'outlets' => $listOutlet,
+                        'type_report' => 'Outlet'
                     ]);
                 }
                 return back()->with('error', 'Anda tidak memiliki akses ke halaman ini.');
             }
+        } catch (\Exception $e) {
+            Log::error('ReportAbsensi Error occurred report : ' . $e->getMessage());
+            return view('reportabsensi', ['error' => 'Terjadi kesalahan load data']);
+        }
+    }
+
+    public function ReportAbsensiOffice()
+    {
+        try {
+
+            //cek user
+            $user = DB::table('karyawan')
+                ->where('id_karyawan', session('id'))
+                ->first();
+
+            if ($user->ROLE == '1' or $user->ROLE == '3') {
+                $listBagian = DB::table('bagian')->get();
+                return view('reportabsensi', [
+                    'type_report' => 'Office'
+                ]);
+            }
+                return back()->with('error', 'Anda tidak memiliki akses ke halaman ini.');
         } catch (\Exception $e) {
             Log::error('ReportAbsensi Error occurred report : ' . $e->getMessage());
             return view('reportabsensi', ['error' => 'Terjadi kesalahan load data']);
@@ -194,18 +217,30 @@ class PresensiController extends Controller
                 'end_date' => 'required|date|after_or_equal:start_date',
             ]);
 
+            $type_report = $request->type_report;
             $outlet = $request->outlet ?? session('outlet');
             $startDate = $request->start_date;
             $endDate = $request->end_date;
 
             if ($request->action == "report") {
-                $listAbsen = DB::table('presensi')
+                if ($type_report == "Office"){
+                    $listAbsen = DB::table('presensi')
+                    ->whereNull('outlet')
+                    ->where('addtime', '>=', $startDate . ' 00:00:00')
+                    ->where('addtime', '<=', $endDate . ' 23:59:59')
+                    ->orderBy('nama_karyawan')
+                    ->orderBy('addtime')
+                    ->get();
+                } else {
+                    $listAbsen = DB::table('presensi')
                     ->where('outlet', $outlet)
                     ->where('addtime', '>=', $startDate . ' 00:00:00')
                     ->where('addtime', '<=', $endDate . ' 23:59:59')
                     ->orderBy('nama_karyawan')
                     ->orderBy('addtime')
                     ->get();
+                }
+                
 
                 $processedData = [];
                 foreach ($listAbsen as $absen) {
@@ -252,17 +287,29 @@ class PresensiController extends Controller
                     'enddate' => Carbon::parse($endDate)->format('d-m-Y'),
                     'start_date' => $startDate,
                     'end_date' => $endDate,
-                    'outlets' => $listOutlet
+                    'outlets' => $listOutlet,
+                    'type_report' => $type_report
                 ]);
             } else {
                 //download
-                $listAbsen = DB::table('presensi')
+                if ($type_report == "Office"){
+                    $listAbsen = DB::table('presensi')
+                    ->whereNull('outlet')
+                    ->where('addtime', '>=', $startDate . ' 00:00:00')
+                    ->where('addtime', '<=', $endDate . ' 23:59:59')
+                    ->orderBy('nama_karyawan')
+                    ->orderBy('addtime')
+                    ->get();
+                } else {
+                    $listAbsen = DB::table('presensi')
                     ->where('outlet', $outlet)
                     ->where('addtime', '>=', $startDate . ' 00:00:00')
                     ->where('addtime', '<=', $endDate . ' 23:59:59')
                     ->orderBy('nama_karyawan')
                     ->orderBy('addtime')
                     ->get();
+                }
+                
 
                 if ($listAbsen->isEmpty()) {
                     return back()->with('error', 'Tidak ada data untuk tanggal yang dipilih.');
@@ -308,12 +355,17 @@ class PresensiController extends Controller
                 $sheet->getStyle('A1')->getFont()->setBold(true)->setSize(16);
                 $sheet->getStyle('A1')->getAlignment()->setHorizontal(\PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER);
 
-                //ambil outlet
-                $namaOutlet = DB::table('outlet')
+                if ($type_report == "Office"){
+                    $sheet->setCellValue('A2', 'Office');
+                } else {
+                    //ambil outlet
+                    $namaOutlet = DB::table('outlet')
                     ->where('id_outlet', $outlet)
                     ->first();
 
-                $sheet->setCellValue('A2', $namaOutlet->NAMA);
+                    $sheet->setCellValue('A2', $namaOutlet->NAMA);
+                }
+                
                 $sheet->mergeCells('A2:G2');
                 $sheet->getStyle('A2')->getFont()->setBold(true);
                 $sheet->getStyle('A2')->getAlignment()->setHorizontal(\PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER);

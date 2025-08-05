@@ -4,7 +4,7 @@
 <h1 class="mt-4">Report Absensi Karyawan</h1>
 <ol class="breadcrumb mb-4">
     <li class="breadcrumb-item"><a href="#">Dashboard</a></li>
-    <li class="breadcrumb-item active">Report Absensi Karyawan</li>
+    <li class="breadcrumb-item active">Report Absensi {{ $type_report }}</li>
 </ol>
 <div class="card mb-4">
     <div class="card-header">
@@ -14,6 +14,7 @@
         <div class="row justify-content-center">
             <div class="col-md-6">
                 <form method="GET" action="/getreportabsen">
+                    
                     @csrf
                     @if(isset($outlets) && $outlets->isNotEmpty())
                         <div class="mb-3">
@@ -27,6 +28,8 @@
                             </select>
                         </div>
                     @endif
+                    
+                    <input type="hidden" name="type_report" value="{{ $type_report }}" />
                     <div class="mb-3">
                         <label for="start_date" class="form-label">Tanggal Awal</label>
                         <input type="date" class="form-control" id="start_date" name="start_date" value="{{ isset($start_date) ? $start_date : old('start_date') }}" required>
