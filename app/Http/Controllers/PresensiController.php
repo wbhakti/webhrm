@@ -168,7 +168,9 @@ class PresensiController extends Controller
                 ->first();
 
             if ($user->JABATAN == '10') {
-                return view('reportabsensi');
+                return view('reportabsensi', [
+                    'type_report' => 'Outlet'
+                ]);
             } else {
                 if ($user->ROLE == '1' or $user->ROLE == '2' or $user->ROLE == '3') {
                     //khusus HRD ada filter outlet
