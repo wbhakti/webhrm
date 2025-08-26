@@ -279,7 +279,7 @@ class PresensiController extends Controller
 
                 // Cek user
                 $listOutlet = collect();
-                if (session('role') == '2' or session('role') == '3') {
+                if (session('role') == '1' or session('role') == '2' or session('role') == '3') {
                     $listOutlet = DB::table('outlet')->get();
                 }
 
